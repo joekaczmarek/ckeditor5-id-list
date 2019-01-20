@@ -3,6 +3,7 @@
  */
 
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
+import ListCommand from '@ckeditor/ckeditor5-list/src/listcommand';
 
 /**
  * ID List
@@ -23,4 +24,10 @@ export default class List extends Plugin {
 	static get pluginName() {
 		return 'IDList';
 	}
+
+    init() {
+        const editor = this.editor;
+        editor.commands.add('numberedIDList', new ListCommand(editor, 'numbered'));
+        editor.commands.add('bulletedIDList', new ListCommand(editor, 'bulleted'));
+    }
 }
