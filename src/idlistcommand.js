@@ -15,25 +15,22 @@ export default class IDListCommand extends Command {
 
     _getValue(){
         const block = first(this.editor.model.document.selection.getSelectedBlocks());
-        return this._isID(block) || this._isLeafID(block);
+        return this._isID(block); 
     }
 
     _checkEnabled(){
-        const listItem = first(this.editor.model.document.selection.getSelectedBlocks());
-        return !!listItem && listItem.is('listItem');
+        const block = first(this.editor.model.document.selection.getSelectedBlocks());
+        return !!block && block.is('listItem') && this._hasChild(block);
     }
 
     _isID(block){
         return block.is('listItem') && block.hasAttribute('noteid');
     }
 
-    _isLeafID(block){
-        if(block.previousSibling){
-            if(block.previousSibling.getAttribute('listIndent') < block.getAttribute('listIndent')){
-                return this.isID(block.previousSibling);
-            }
-        }
-        return false;
+    _hasChild(block){
+        const child = block.nextSibling;
+        return child && child.is('listItem') 
+            && child.getAttribute('listIndent') > block.getAttribute('listIndent');
     }
 
     execute(){
@@ -44,29 +41,46 @@ export default class IDListCommand extends Command {
                 continue;
     
             var curr = block;
+            var next = block.nextSibling;
 
             // disable
-            if(curr.hasAttribute('noteid')){
-                do{
+            if(block.hasAttribute('noteid')){
+                while(true){
                     model.change(writer => {
                         writer.removeAttribute('noteid', curr);
+                        writer.removeAttribute('notetype', curr);
                     });
+
+                    curr = curr.nextSibling;
+
+                    if(!curr || !curr.is('listItem'))
+                        break;
+
+                    // Check if we're still a descendant of the selected block
+                    if(curr.getAttribute('listIndent') <= block.getAttribute('listIndent'))
+                        break;
                 }
-                while(curr.nextSibling && (curr = curr.nextSibling).is('listItem'));
             }
             // enable
             else{
-                var next = null;
+                while(next && next.is('listItem')){
 
-                while(curr.nextSibling && (next = curr.nextSibling).is('listItem')){
+                    console.log('CURR', curr);
+                    console.log('NEXT', next);
 
                     if(next.getAttribute('listIndent') > curr.getAttribute('listIndent')){
                         model.change(writer => {
                             writer.setAttribute('noteid', uuidv4(), curr);
+                            writer.setAttribute('notetype', "default", curr);
                         });
                     }
-
+                    
                     curr = next;
+                    next = curr.nextSibling;
+
+                    // Check if we're still a descendant of the selected block
+                    if(curr.getAttribute('listIndent') <= block.getAttribute('listIndent'))
+                        break;
                 }
             }
         }

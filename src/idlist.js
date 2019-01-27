@@ -32,11 +32,16 @@ export default class IDList extends Plugin {
     init() {
         const editor = this.editor;
 
-        editor.model.schema.extend('listItem', { allowAttributes: 'noteid' });
+        editor.model.schema.extend('listItem', { allowAttributes: ['noteid', 'notetype'] });
 
         editor.conversion.attributeToAttribute({
             model: 'noteid',
             view: 'noteid'
+        });
+
+        editor.conversion.attributeToAttribute({
+            model: 'notetype',
+            view: 'notetype'
         });
 
         editor.commands.add('IDList', new IDListCommand(editor));
