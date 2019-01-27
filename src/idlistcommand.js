@@ -14,7 +14,8 @@ export default class IDListCommand extends Command {
     }
 
     _getValue(){
-        return false;
+        const block = first(this.editor.model.document.selection.getSelectedBlocks());
+        return this._isID(block) || this._isLeafID(block);
     }
 
     _checkEnabled(){
@@ -22,30 +23,52 @@ export default class IDListCommand extends Command {
         return !!listItem && listItem.is('listItem');
     }
 
-    execute(){
-        console.log("IDList execute");
-        
-        const model = this.editor.model;
-       
-        for(const block of model.document.selection.getSelectedBlocks())
-            this._recursiveAddId(block);
-
-        console.log("IDList finish");
+    _isID(block){
+        return block.is('listItem') && block.hasAttribute('noteid');
     }
 
-    _recursiveAddId(element){
-        console.log(element);
-        
-        if(!element.is('listItem'))
-            return;
+    _isLeafID(block){
+        if(block.previousSibling){
+            if(block.previousSibling.getAttribute('listIndent') < block.getAttribute('listIndent')){
+                return this.isID(block.previousSibling);
+            }
+        }
+        return false;
+    }
 
+    execute(){
         const model = this.editor.model;
-        model.change(writer => {
-            writer.setAttribute('noteid', uuidv4(), element);
-        });
+        
+        for(const block of model.document.selection.getSelectedBlocks()){
+            if(!block.is('listItem'))
+                continue;
+    
+            var curr = block;
 
-        for(const child of element.getChildren()){
-            this._recursiveAddId(child);
+            // disable
+            if(curr.hasAttribute('noteid')){
+                do{
+                    model.change(writer => {
+                        writer.removeAttribute('noteid', curr);
+                    });
+                }
+                while(curr.nextSibling && (curr = curr.nextSibling).is('listItem'));
+            }
+            // enable
+            else{
+                var next = null;
+
+                while(curr.nextSibling && (next = curr.nextSibling).is('listItem')){
+
+                    if(next.getAttribute('listIndent') > curr.getAttribute('listIndent')){
+                        model.change(writer => {
+                            writer.setAttribute('noteid', uuidv4(), curr);
+                        });
+                    }
+
+                    curr = next;
+                }
+            }
         }
     }
 }
