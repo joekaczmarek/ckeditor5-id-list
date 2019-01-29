@@ -35,6 +35,36 @@ export default class IDListCommand extends Command {
 
     execute(){
         const model = this.editor.model;
+        for(const block of model.document.selection.getSelectedBlocks()){
+            if(!block.is('listItem'))
+                continue;
+            
+            // disable
+            if(block.hasAttribute('noteid')){
+                model.change(writer => {
+                    writer.removeAttribute('noteid', block);
+                    writer.removeAttribute('notetype', block);
+                });
+            }
+            // enable
+            else{
+                var next = block.nextSibling;
+
+                if(!next)
+                    break;
+
+                if(next.getAttribute('listIndent') > block.getAttribute('listIndent')){
+                    model.change(writer => {
+                        writer.setAttribute('noteid', uuidv4(), block);
+                        writer.setAttribute('notetype', "default", block);
+                    });
+                }
+            }
+        }
+    }
+
+    toggleRecursive(){
+        const model = this.editor.model;
         
         for(const block of model.document.selection.getSelectedBlocks()){
             if(!block.is('listItem'))
@@ -64,10 +94,6 @@ export default class IDListCommand extends Command {
             // enable
             else{
                 while(next && next.is('listItem')){
-
-                    console.log('CURR', curr);
-                    console.log('NEXT', next);
-
                     if(next.getAttribute('listIndent') > curr.getAttribute('listIndent')){
                         model.change(writer => {
                             writer.setAttribute('noteid', uuidv4(), curr);
