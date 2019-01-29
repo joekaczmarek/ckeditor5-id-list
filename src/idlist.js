@@ -2,9 +2,6 @@
  * @module list/list
  */
 
-import numberedListIcon from '../theme/icons/numberedlist.svg';
-import bulletedListIcon from '../theme/icons/bulletedlist.svg';
-
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 import IDListCommand from './idlistcommand.js';
