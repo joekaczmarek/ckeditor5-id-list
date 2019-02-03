@@ -43,7 +43,7 @@ export default class IDListCommand extends Command {
             if(block.hasAttribute('noteid')){
                 model.change(writer => {
                     writer.removeAttribute('noteid', block);
-                    writer.removeAttribute('notetype', block);
+                    /*writer.removeAttribute('notetype', block);*/
                 });
             }
             // enable
@@ -56,7 +56,7 @@ export default class IDListCommand extends Command {
                 if(next.getAttribute('listIndent') > block.getAttribute('listIndent')){
                     model.change(writer => {
                         writer.setAttribute('noteid', uuidv4(), block);
-                        writer.setAttribute('notetype', "default", block);
+                        /*writer.setAttribute('notetype', "default", block);*/
                     });
                 }
             }
