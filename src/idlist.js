@@ -32,22 +32,14 @@ export default class IDList extends Plugin {
     init() {
         const editor = this.editor;
 
-        editor.model.schema.extend('listItem', { allowAttributes: ['noteid'/*, 'notetype'*/] });
+        editor.model.schema.extend('listItem', { allowAttributes: ['noteid'] });
 
-/*
         editor.conversion.attributeToAttribute({
             model: 'noteid',
             view: 'noteid'
         });
-*/
 
 /*
-        editor.conversion.attributeToAttribute({
-            model: 'notetype',
-            view: 'notetype'
-        });
-*/
-
         editor.conversion.for('downcast').add(downcastAttributeToAttribute({
             model: "noteid",
             view: modelAttributeValue => ({
@@ -70,7 +62,7 @@ export default class IDList extends Plugin {
             },
             converterPriority: 'low'
         }));
-
+*/
         editor.commands.add('IDList', new IDListCommand(editor));
 
         editor.ui.componentFactory.add('IDList', locale => {
@@ -79,7 +71,7 @@ export default class IDList extends Plugin {
 
             buttonView.set({
                 label: 'ID',
-                keystroke: 'Ctrl-L',
+                keystroke: 'CmdOrCtrl-L',
                 withText: true
             });
 
